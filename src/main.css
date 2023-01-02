@@ -58,3 +58,27 @@ button{
   padding: 0 2rem;
   border-radius: 8px;
 }
+
+.stats{
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.stats h2{
+  font-family: Karla;
+  font-size: 1.7rem;
+  color: var(--dark-purple);
+}
+
+.stats h2:nth-child(3){
+  color: #f00;
+  cursor: pointer;
+}
+
+.go-back{
+  margin-top: -2rem 0;
+  font-family: Inter;
+  opacity: 0.9;
+  cursor: pointer;
+}

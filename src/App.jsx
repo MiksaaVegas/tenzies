@@ -7,6 +7,20 @@ import Dice from "./components/Dice"
 export default function App(){
   const {innerWidth, innerHeight} = window
 
+  // States
+  const [dice, setDice] = useState([0])
+  const [tenzies, setTenzies] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(true)
+  const [score, setScore] = useState(1)
+  const [time, setTime] = useState(0)
+  const [intervalID, setIntervalID] = useState(0)
+  const [bestScore, setBestScore] = useState(
+    JSON.parse(localStorage.getItem('bestScore')) ?? 0
+  )
+  const [bestTime, setBestTime] = useState(
+    JSON.parse(localStorage.getItem('bestTime')) ?? 0
+  )
+
   // Returning an array of 10 random numbers 1 - 6
   const randomNumbers = () => {
     let nums = []
@@ -33,35 +47,45 @@ export default function App(){
     )
   }
 
-  // States
-  const [dice, setDice] = useState(newDice())
-  const [tenzies, setTenzies] = useState(false)
-
-  // Side effect that looks for a winning condition
+  // Side effect for handling winning condition
   useEffect(() => {
     const firstDice = dice[0]
     const condition1 = dice.every(die => die.isHeld)
     const condition2 = dice.every(
       die => die.value === firstDice.value
     )
-    
-    if(condition1 && condition2) setTenzies(true)
+
+    if(condition1 && condition2) {
+      setTenzies(true)
+      clearInterval(intervalID)
+
+      if(!bestScore || bestScore > score)
+        localStorage.setItem('bestScore', score)
+
+      if(!bestTime || bestTime > time)
+        localStorage.setItem('bestTime', time)
+    }
   }, [dice])
 
-  // Function that rolls new dice, while keeping the held ones
-  // Also restarts the game if it's already won and 
-  // the dice are rolled
-  const rollDice = () => {
-    if(tenzies){
-      for (const die of dice) die.isHeld = false
-      setTenzies(false)
-    }
+  // Time tracker
+  const trackTime = () => {
+    setIntervalID(setInterval(() => {
+      setTime(oldTime => oldTime + 1)
+    }, 1000))
+  }
 
+  // Function that rolls new dice, 
+  // while keeping the held ones if needed
+  const rollDice = keep => {
     const newValues = newDice()
 
-    return dice.map((die, index) => (
-        die.isHeld ? die : newValues[index]
-    ))
+    if(keep){
+      setScore(oldScore => oldScore + 1)
+
+      return dice.map((die, index) => (
+          die.isHeld ? die : newValues[index]
+      ))
+    } else return newValues
   }
 
   // Handler for changing the isHeld status
@@ -73,6 +97,25 @@ export default function App(){
         {...die}
       ))
     ))
+  }
+
+  const startGame = () => {
+    setMenuOpen(false)
+    setTenzies(false)
+    setDice(rollDice(false))
+    setTime(0), setScore(1)
+    trackTime()
+  }
+
+  const openMenu = () => {
+    setMenuOpen(true)
+    clearInterval(intervalID)
+  }
+
+  const resetScores = () => {
+    localStorage.clear()
+    setBestScore(0)
+    setBestTime(0)
   }
 
   // Mapping over the dice array of objects and
@@ -95,17 +138,43 @@ export default function App(){
       <main>
         <div className="instruction">
           <h1>Tenzies</h1>
-          <p>
-            Roll until all dice are the same. 
-            Click each die to freeze it at its current value between rolls.
-          </p>
+          { menuOpen && 
+            <p>
+              Roll until all dice are the same. 
+              Click each die to freeze it at its current value between rolls.
+            </p>
+          }
         </div>
-        <div className="die-wrapper">
-          {diceElements}    
+        <div className="stats">
+          { menuOpen ? 
+            <>
+              <h2>Best score: {bestScore}</h2>
+              <h2>Best time: {bestTime}s</h2>
+              <h2 onClick={resetScores}>RESET</h2>
+            </>
+            : 
+            <>
+              <h2>Current score: {score}</h2>
+              <h2>Current time: {time}s</h2>
+            </>
+          }
         </div>
-        <button onClick={() => setDice(rollDice())}>
-          {tenzies ? 'New Game' : 'Roll'}
-        </button>
+        { menuOpen ? 
+          <button onClick={startGame}>Start Game</button>
+          : 
+          <>
+            <div className="die-wrapper">
+              {diceElements}
+            </div>
+              { tenzies ? 
+                <button onClick={startGame}>New Game</button>
+                : <>
+                    <button onClick={() => setDice(rollDice(true))}>Roll</button>
+                    <p className="go-back" onClick={openMenu}>Back to menu</p>
+                  </>
+              }
+          </>
+        }
       </main>
     </>
   )
