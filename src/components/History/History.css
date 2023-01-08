@@ -1,0 +1,49 @@
+.history{
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: var(--white);
+  padding: 3rem;
+  height: 100vh;
+  min-width: 20vw;
+  overflow: scroll;
+}
+
+.history h3{
+  text-align: left;
+  font-size: 2rem;
+  font-family: Karla;
+  color: var(--dark-purple);
+}
+
+.history-title{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.history-title ul{
+  list-style: none;
+  width: 50%;
+  display: flex;
+  justify-content: right;
+}
+
+.close-history{
+  margin-left: 1rem;
+}
+
+.history-title p{
+  color: #f00;
+  font-size: 1rem;
+  font-family: Inter;
+  opacity: 0.8;
+  cursor: pointer;
+}
+
+.no-history{
+  margin-top: 1rem;
+  font-family: Inter;
+  opacity: 0.5;
+}

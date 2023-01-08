@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react"
 import { nanoid } from 'nanoid'
 import Confetti from 'react-confetti'
-import Dice from "./components/Dice"
-
+import Dice from "./components/Dice/Dice"
+import History from "./components/History/History"
+import './App.css'
 
 export default function App(){
   const {innerWidth, innerHeight} = window
+  const {log} = console
 
   // States
   const [dice, setDice] = useState([0])
@@ -19,6 +21,10 @@ export default function App(){
   )
   const [bestTime, setBestTime] = useState(
     JSON.parse(localStorage.getItem('bestTime')) ?? 0
+  )
+  const [historyOpen, setHistoryOpen] = useState(false)
+  const [history, setHistory] = useState(
+    JSON.parse(localStorage.getItem('history')) ?? []
   )
 
   // Returning an array of 10 random numbers 1 - 6
@@ -47,6 +53,46 @@ export default function App(){
     )
   }
 
+  // Saving the game to local storage
+  const saveGame = () => {
+    let pickedDice = dice[0].value
+    let date = new Date
+    let day = date.getDate(),
+        month = date.getMonth() + 1,
+        hour = date.getHours(),
+        minute = date.getMinutes()
+    day = day < 10 ? '0' + day : day
+    month = month < 10 ? '0' + month : month
+    hour = hour < 10 ? '0' + hour : hour
+    minute = minute < 10 ? '0' + minute : minute
+
+    date = `${day}.${month} ${hour}:${minute}`
+
+    let gameObject = {
+      id: nanoid(),
+      date: date,
+      score: score,
+      time: time,
+      diceValue: pickedDice,
+      isFavorite: false
+    }
+
+    setHistory(oldHistory => [gameObject, ...oldHistory])
+  }
+
+  useEffect(() => { // Side effect for saving the game
+    localStorage.setItem('history', JSON.stringify(history))
+  }, [history])
+
+  // Updating the hi-score and best time if necessary
+  const updateBestStats = () => {
+    if(!bestScore || bestScore > score)
+      localStorage.setItem('bestScore', score)
+
+    if(!bestTime || bestTime > time)
+      localStorage.setItem('bestTime', time)
+  }
+
   // Side effect for handling winning condition
   useEffect(() => {
     const firstDice = dice[0]
@@ -58,12 +104,8 @@ export default function App(){
     if(condition1 && condition2) {
       setTenzies(true)
       clearInterval(intervalID)
-
-      if(!bestScore || bestScore > score)
-        localStorage.setItem('bestScore', score)
-
-      if(!bestTime || bestTime > time)
-        localStorage.setItem('bestTime', time)
+      updateBestStats()
+      saveGame()
     }
   }, [dice])
 
@@ -113,7 +155,8 @@ export default function App(){
   }
 
   const resetScores = () => {
-    localStorage.clear()
+    localStorage.removeItem('bestScore')
+    localStorage.removeItem('bestTime')
     setBestScore(0)
     setBestTime(0)
   }
@@ -134,6 +177,22 @@ export default function App(){
   
   return (
     <>
+      { menuOpen && 
+        <img 
+          onClick={() => setHistoryOpen(true)}
+          className="history-btn" 
+          src="/src/assets/svg/clock-history.svg" 
+          title="History"
+        />
+      }
+      {
+        historyOpen && 
+        <History 
+          toggle={setHistoryOpen} 
+          data={history} 
+          setHistory={setHistory}
+        />
+      }
       {tenzies && <Confetti width={innerWidth} height={innerHeight} />}
       <main>
         <div className="instruction">
