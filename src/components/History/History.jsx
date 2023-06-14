@@ -2,11 +2,6 @@ import { useState } from 'react'
 import HistoryItem from './HistoryItem'
 import './History.css'
 
-/*
-  TODO: Option for filtering favorite games
-  TODO: Animations
-*/
-
 export default function History(props){
   const {log} = console
   const {toggle, data, setHistory} = props

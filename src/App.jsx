@@ -181,7 +181,7 @@ export default function App(){
         <img 
           onClick={() => setHistoryOpen(true)}
           className="history-btn" 
-          src="/src/assets/svg/clock-history.svg" 
+          src="/clock-history.svg" 
           title="History"
         />
       }

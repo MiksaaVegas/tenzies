@@ -15,7 +15,7 @@ export default function Dice(props){
       className={classes} 
       onClick={() => changeStatus(id)}
     >
-      <img src={`/src/assets/svg/dice-${value}.svg`} />
+      <img src={`/dice-${value}.svg`} />
     </div>
   )
 }

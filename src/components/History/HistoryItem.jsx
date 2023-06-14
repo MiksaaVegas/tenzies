@@ -28,14 +28,14 @@ export default function HistoryItem(props){
   return (
     <article className="game-info" key={id}>
       <img 
-        src="/src/assets/svg/x.svg" 
+        src="/x.svg" 
         className="game-remove" 
         onClick={removeHistoryItem}
       />
       <div className="game-info-stats">
         <h4>{date} 
           <img 
-            src={`/src/assets/svg/star${isFavorite ? '-color' : ''}.svg`}
+            src={`/star${isFavorite ? '-color' : ''}.svg`}
             className="favorite-star"
             onClick={toggleStar}
           />
